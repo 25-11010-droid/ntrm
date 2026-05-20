@@ -25,9 +25,10 @@ with col1:
     st.write("버튼을 누르면 반도체 소자에 전기 펄스(Pulse) 자극이 가해집니다.")
     
     # [핵심 로직 1] 전기 자극(학습) 버튼
-    # 버튼을 누르면 저항이 감소(전도도 증가)하여 정보를 저장하는 상태가 됨
+    # (반도체공학과용 비선형 가속도 수식 반영: 현재 저항의 10%씩 감소)
     if st.button("🔴 전기 자극 주기 (Apply Pulse)", use_container_width=True):
-        st.session_state.resistance -= 8.0  # 자극 시 저항 감소
+        decrease_value = st.session_state.resistance * 0.1
+        st.session_state.resistance -= decrease_value
         if st.session_state.resistance < 10.0:
             st.session_state.resistance = 10.0  # 최소 저항 한계선 설정
             
@@ -41,7 +42,7 @@ with col1:
     # 저항 수치에 따라 동그라미(시냅스)의 색상 진하기(Alpha값)를 결정 (0.1 ~ 1.0)
     alpha = min(max((100.0 - st.session_state.resistance) / 90.0, 0.1), 1.0)
     
-    # HTML/CSS를 활용해 화면에 가상 반도체 소자를 시각화
+    # HTML/CSS를 활용해 화면에 가상 반도체 소자를 시각화 (오류 수정 완료)
     st.markdown(
         f"""
         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; 
@@ -55,31 +56,8 @@ with col1:
             <p style="margin: 0; font-size: 14px; color: #666;">전도도(학습 강도): {conductance*1000:.2f} mS</p>
         </div>
         """,
-        unsafe_style_allowed=True
+        unsafe_allow_html=True  # ⭕ 정상 작동하도록 수정한 옵션 이름
     )
 
 with col2:
-    st.header("📈 실시간 데이터 스트리밍 (Data Streaming)")
-    
-    # 실시간으로 변하는 저항 데이터를 저장
-    st.session_state.history.append(st.session_state.resistance)
-    
-    # 데이터가 너무 길어지면 최근 50개만 보여주도록 유지
-    if len(st.session_state.history) > 50:
-        st.session_state.history.pop(0)
-        
-    # 라인 차트(그래프)로 실시간 스트리밍 시각화
-    chart_data = pd.DataFrame(st.session_state.history, columns=["Resistance (Ω)"])
-    st.line_chart(chart_data, y="Resistance (Ω)", use_container_width=True)
-
-# 4. [핵심 로직 3] 가상 망각(Forget) 시스템 기능 및 화면 강제 새로고침(Streaming)
-# 버튼을 누르지 않고 시간이 흐르면 뇌의 망각처럼 저항이 다시 초기 상태(100)로 서서히 복귀함
-time.sleep(0.3)  # 0.3초마다 데이터 스트리밍 흐름 생성
-
-if st.session_state.resistance < 100.0:
-    st.session_state.resistance += 1.2  # 0.3초마다 저항이 1.2씩 증가 (자연 망각 수식)
-    if st.session_state.resistance > 100.0:
-        st.session_state.resistance = 100.0
-
-# 화면을 강제로 새로고침하여 무한 스트리밍 루프를 만듦
-st.rerun()
+    st.header
